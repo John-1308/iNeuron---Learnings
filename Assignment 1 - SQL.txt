@@ -1,0 +1,93 @@
+Use Demo_Database;
+
+Create or replace table Sales_Data
+(
+order_id varchar(30),
+order_date Date primary key,
+ship_date Date,
+ship_mode varchar(30),
+customer_name varchar(50),
+segment varchar(50),
+state varchar(50),
+country varchar(50),
+market varchar(25),
+region varchar(30),
+product_id varchar(30),
+category varchar(30),
+sub_category varchar(30),
+product_name string,
+sales int,
+quantity int,
+discount float,
+profit Number(10,2),
+shipping_cost Number(10,2),
+order_priority varchar(25),
+year int
+);
+ 
+Describe table Sales_Data;
+
+Select * from sales_data;
+
+
+-----------copying tables structure------------------------
+Create or replace table Sales_data_copy_data like Sales_data;
+
+
+----------Dropping existing primary key---------------------
+Alter table Sales_data_copy_data
+drop primary key;
+
+
+----------Updating primary key to Order_Id------------------
+Alter table sales_data_copy_data
+Add primary key(Order_id);
+
+Describe table Sales_Data_copy_data;
+
+
+----------Duplicating or copying data from existing table-----------------
+Create or replace Table Sales_Data_Copy_data as
+Select * from sales_data;
+
+Select * from Sales_Data_copy_data;
+
+
+-----Condition - if discount is greater than 0 'Yes or 'No'-------
+Alter Table sales_data_copy_data Add column Discount_flag varchar(3);
+
+Create or replace table sales_data_copy_data as
+Select *,
+    Case When Discount > '0' Then 'Yes' Else 'No'
+         End as Discount_Flag
+from sales_data; 
+
+
+----------Extracting Order_ID-------------
+Alter Table sales_data_copy_data
+Add column Order_Extract string;
+
+Update sales_data_copy_data
+set Order_Extract = substring(order_id,9); 
+
+
+----------Creating new column for process days-------------
+Alter table sales_data_copy_data add column Process_days int;
+
+Update Sales_data_copy_data
+Set Process_days = Datediff('Day', Ship_date, Order_date); 
+
+
+----------Creating New Column called Rating based on process dates------------
+Select *, 
+    Case When Process_days <= 3 then 5
+         When Process_days Between 4 And 6 then 4
+         When Process_days Between 7 And 10 then 3
+         When Process_days > 10 then 2 
+         Else Process_days
+         End as Rating
+from sales_data_copy_data;
+
+
+
+
